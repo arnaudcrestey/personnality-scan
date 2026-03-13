@@ -7,13 +7,13 @@ export default function Home() {
     <main className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0f0820]">
 
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-950 via-indigo-950 to-purple-900"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#140b2d] via-[#1d0d3a] to-[#2a0f4d]" />
 
       {/* Glow effect */}
-      <div className="absolute top-1/2 left-1/2 w-[900px] h-[900px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,rgba(120,80,255,0.55)_0%,rgba(40,0,80,0)_65%)] blur-3xl"></div>
+      <div className="absolute top-1/2 left-1/2 w-[900px] h-[900px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,rgba(120,80,255,0.55)_0%,rgba(40,0,80,0)_65%)] blur-3xl" />
 
       {/* Card */}
-      <div className="relative bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl px-12 py-14 text-center max-w-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+      <div className="relative bg-white/[0.05] backdrop-blur-2xl border border-white/20 rounded-3xl px-12 py-14 text-center max-w-xl shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
 
         <p className="text-cyan-400 tracking-widest text-xs mb-4">
           DIAGNOSTIC PSYCHOLOGIQUE RAPIDE
@@ -32,7 +32,7 @@ export default function Home() {
 
         <Link
           href="/start"
-          className="inline-block bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold px-10 py-4 rounded-xl shadow-lg hover:scale-105 hover:shadow-cyan-500/40 transition-all duration-300"
+          className="inline-block bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold px-10 py-4 rounded-xl shadow-lg hover:scale-105 hover:shadow-[0_0_30px_rgba(92,242,255,0.6)] transition-all duration-300"
         >
           Découvrir mon profil
         </Link>
