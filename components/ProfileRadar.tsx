@@ -6,7 +6,7 @@ type ProfileRadarProps = {
 
 export function ProfileRadar({ scores }: ProfileRadarProps) {
 
-  const size = 520;
+  const size = 500;
   const center = size / 2;
   const radius = 200;
 
@@ -28,11 +28,12 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
     <div className="flex justify-center">
 
-      <div className="bg-white/10 border border-white/20 rounded-2xl shadow-xl p-8 w-full max-w-[460px] flex justify-center">
+      {/* CADRE PLUS PETIT */}
+      <div className="bg-white/10 border border-white/20 rounded-2xl shadow-xl p-6 w-full max-w-[360px] flex justify-center">
 
         <svg
           viewBox={`0 0 ${size} ${size}`}
-          className="w-[440px] h-[440px]"
+          className="w-[420px] h-[420px]"
         >
 
           {PROFILES.map((profile, index) => {
@@ -63,7 +64,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
                   x={labelX}
                   y={labelY}
                   fill="white"
-                  fontSize="26"
+                  fontSize="22"
                   fontWeight="500"
                   textAnchor="middle"
                   dominantBaseline="middle"
