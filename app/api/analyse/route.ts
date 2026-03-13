@@ -1,118 +1,83 @@
-import { PROFILES, Profile } from "../lib/quiz";
+import { NextResponse } from "next/server";
 
-type ProfileRadarProps = {
-  scores: Record<Profile, number>;
-};
+export const runtime = "nodejs";
 
-export function ProfileRadar({ scores }: ProfileRadarProps) {
+export async function POST(request: Request) {
 
-  const size = 520;
-  const center = size / 2;
-  const radius = 190;
+  const body = await request.json();
 
-  const maxValue = Math.max(1, ...Object.values(scores));
+  const { answers, profile, score } = body;
 
-  const levels = [0.25, 0.5, 0.75, 1];
+  const prompt = `
+Vous êtes un analyste spécialisé en psychologie de la personnalité.
 
-  const points = PROFILES.map((profile, index) => {
-    const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
-    const value = scores[profile] / maxValue;
+Une personne vient de compléter un test de personnalité.
 
-    const x = center + Math.cos(angle) * radius * value;
-    const y = center + Math.sin(angle) * radius * value;
+Score global : ${score}%
+Profil dominant : ${profile}
 
-    return `${x},${y}`;
-  }).join(" ");
+Réponses au test :
+${(answers || []).join("\n")}
 
-  return (
+Rédigez une analyse claire et utile (80 mots maximum).
 
-    <div className="flex justify-center py-6">
+Règles :
 
-      <svg
-        viewBox={`0 0 ${size} ${size}`}
-        className="w-full max-w-[320px] md:max-w-[420px] lg:max-w-[480px]"
-      >
+- Adressez-vous directement à la personne ("vous")
+- Ton professionnel et bienveillant
+- Expliquez les forces principales
+- Mentionnez une piste d'évolution possible
+`;
 
-        {/* Grille radar */}
-        {levels.map((level, i) => {
+  const apiKey = process.env.OPENAI_API_KEY;
 
-          const gridPoints = PROFILES.map((_, index) => {
+  if (!apiKey) {
+    return NextResponse.json({
+      analysis:
+        "Votre profil révèle une personnalité structurée, capable d'analyser les situations et de prendre des décisions réfléchies. Votre potentiel s'exprime particulièrement lorsque vous associez votre vision à une organisation claire de vos priorités."
+    });
+  }
 
-            const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
+  try {
 
-            const x = center + Math.cos(angle) * radius * level;
-            const y = center + Math.sin(angle) * radius * level;
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
 
-            return `${x},${y}`;
+      method: "POST",
 
-          }).join(" ");
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
+      },
 
-          return (
-            <polygon
-              key={i}
-              points={gridPoints}
-              fill="none"
-              stroke="rgba(255,255,255,0.15)"
-              strokeWidth="1"
-            />
-          );
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 180
+      })
 
-        })}
+    });
 
-        {/* Axes */}
-        {PROFILES.map((profile, index) => {
+    const data = await response.json();
 
-          const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
+    const analysis =
+      data.choices?.[0]?.message?.content ??
+      "Votre analyse personnalisée est en cours de génération.";
 
-          const lineX = center + Math.cos(angle) * radius;
-          const lineY = center + Math.sin(angle) * radius;
+    return NextResponse.json({ analysis });
 
-          const labelDistance = radius + 40;
+  } catch {
 
-          const labelX = center + Math.cos(angle) * labelDistance;
-          const labelY = center + Math.sin(angle) * labelDistance;
+    return NextResponse.json({
+      analysis:
+        "Votre profil montre une personnalité capable de combiner réflexion, intuition et adaptation. Vous gagnez à clarifier vos priorités et transformer vos idées en actions concrètes."
+    });
 
-          return (
-
-            <g key={profile}>
-
-              <line
-                x1={center}
-                y1={center}
-                x2={lineX}
-                y2={lineY}
-                stroke="rgba(255,255,255,0.25)"
-              />
-
-              <text
-                x={labelX}
-                y={labelY}
-                fill="white"
-                fontSize="18"
-                textAnchor="middle"
-                dominantBaseline="middle"
-              >
-                {profile.replace("Le ", "")}
-              </text>
-
-            </g>
-
-          );
-
-        })}
-
-        {/* Données */}
-        <polygon
-          points={points}
-          fill="rgba(92,242,255,0.25)"
-          stroke="#5cf2ff"
-          strokeWidth="3"
-        />
-
-      </svg>
-
-    </div>
-
-  );
+  }
 
 }
