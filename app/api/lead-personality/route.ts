@@ -1,69 +1,77 @@
+import nodemailer from "nodemailer";
+import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
-export const runtime = "nodejs";
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-type MailTransporter = {
-  sendMail: (options: {
-    from: string;
-    to: string;
-    replyTo: string;
-    subject: string;
-    text: string;
-  }) => Promise<unknown>;
-};
+export async function POST(req: Request) {
 
-function getNodemailer() {
-  const req = globalThis.eval("require") as (id: string) => unknown;
-  return req("nodemailer") as {
-    createTransport: (config: unknown) => MailTransporter;
-  };
-}
+  const body = await req.json();
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  const { firstName, email, birthDate, birthTime, birthCity, score, profile } = body;
+  const {
+    firstName,
+    email,
+    birthDay,
+    birthMonth,
+    birthYear,
+    birthHour,
+    birthMinute,
+    birthCity,
+    score,
+    profile
+  } = body;
 
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || 587);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  const to = process.env.LEAD_TO_EMAIL || process.env.SMTP_USER;
+  const prompt = `
+Vous êtes un expert en psychologie de la personnalité.
 
-  if (!host || !user || !pass || !to) {
-    return NextResponse.json({ error: "SMTP not configured" }, { status: 500 });
-  }
+Profil : ${profile}
+Score : ${score}%
 
-  let transporter: MailTransporter;
-  try {
-    const nodemailer = getNodemailer();
-    transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465,
-      auth: { user, pass }
-    });
-  } catch {
-    return NextResponse.json(
-      { error: "nodemailer package is required at runtime" },
-      { status: 500 }
-    );
-  }
+Rédigez une analyse courte (80 mots) expliquant ce profil.
+`;
 
-  await transporter.sendMail({
-    from: `PERSONALITY SCAN <${user}>`,
-    to,
-    replyTo: email,
-    subject: `LEAD PERSONALITY SCAN — Score ${score} — Profil ${profile}`,
-    text: [
-      `Prénom: ${firstName}`,
-      `Email: ${email}`,
-      `Date de naissance: ${birthDate}`,
-      `Heure de naissance: ${birthTime}`,
-      `Ville de naissance: ${birthCity}`,
-      `Score: ${score}`,
-      `Profil: ${profile}`
-    ].join("\n")
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "user", content: prompt }]
   });
 
-  return NextResponse.json({ ok: true });
+  const analysis = completion.choices[0].message.content;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const message = `
+Analyse Personality Scan
+
+Prénom : ${firstName}
+Email : ${email}
+
+Date de naissance :
+${birthDay}/${birthMonth}/${birthYear}
+${birthHour}:${birthMinute}
+Ville : ${birthCity}
+
+Profil : ${profile}
+Score : ${score}%
+
+Analyse :
+
+${analysis}
+`;
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Votre analyse Personality Scan",
+    text: message
+  });
+
+  return NextResponse.json({ success: true });
 }
