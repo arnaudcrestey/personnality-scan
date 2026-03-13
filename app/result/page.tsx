@@ -14,17 +14,12 @@ const emptyScores = Object.fromEntries(
 ) as QuizResult["profileScores"];
 
 export default function ResultPage() {
-
   const [result, setResult] = useState<QuizResult | null>(null);
-  const [analysis, setAnalysis] = useState(
-    "Analyse personnalisée en cours..."
-  );
+  const [analysis, setAnalysis] = useState("Analyse personnalisée en cours...");
   const [leadState, setLeadState] = useState<LeadState>("idle");
 
   useEffect(() => {
-
     const raw = localStorage.getItem("personality_result");
-
     if (!raw) return;
 
     const parsed = JSON.parse(raw) as QuizResult;
@@ -53,13 +48,10 @@ export default function ResultPage() {
           "Votre analyse personnalisée sera disponible dans quelques instants."
         );
       });
-
   }, []);
 
   const submitLead = async (event: FormEvent<HTMLFormElement>) => {
-
     event.preventDefault();
-
     if (!result) return;
 
     setLeadState("loading");
@@ -69,8 +61,11 @@ export default function ResultPage() {
     const payload = {
       firstName: String(formData.get("firstName") || ""),
       email: String(formData.get("email") || ""),
-      birthDate: String(formData.get("birthDate") || ""),
-      birthTime: String(formData.get("birthTime") || ""),
+      birthDay: String(formData.get("birthDay") || ""),
+      birthMonth: String(formData.get("birthMonth") || ""),
+      birthYear: String(formData.get("birthYear") || ""),
+      birthHour: String(formData.get("birthHour") || ""),
+      birthMinute: String(formData.get("birthMinute") || ""),
       birthCity: String(formData.get("birthCity") || ""),
       score: result.score,
       profile: result.dominantProfile
@@ -85,60 +80,60 @@ export default function ResultPage() {
     });
 
     setLeadState(response.ok ? "success" : "error");
-
   };
 
   if (!result) {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
-
         <div className="glass-card max-w-xl p-8 text-center">
-
-          <p className="text-white/80">
-            Aucun résultat trouvé.
-          </p>
-
-          <Link
-            href="/start"
-            className="mt-4 inline-block text-neon underline"
-          >
+          <p className="text-white/80">Aucun résultat trouvé.</p>
+          <Link href="/start" className="mt-4 inline-block text-neon underline">
             Faire le test
           </Link>
-
         </div>
-
       </main>
     );
   }
 
   return (
-
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-10">
 
-      {/* RESULTAT */}
+      {/* RESULTAT + RADAR */}
 
-      <ResultCard
-        profile={result.dominantProfile}
-        score={result.score}
-      />
+      <div className="grid gap-6 md:grid-cols-2">
 
-      <ProfileRadar
-        scores={result.profileScores || emptyScores}
-      />
+        {/* Analyse + Score */}
+        <section className="glass-card p-6">
 
-      {/* ANALYSE */}
+          <ResultCard
+            profile={result.dominantProfile}
+            score={result.score}
+          />
 
-      <section className="glass-card p-6">
+          <h3 className="text-lg font-semibold mt-6">
+            Analyse personnalisée
+          </h3>
 
-        <h3 className="text-lg font-semibold">
-          Analyse personnalisée
-        </h3>
+          <p className="mt-4 leading-relaxed text-white/85">
+            {analysis}
+          </p>
 
-        <p className="mt-4 leading-relaxed text-white/85">
-          {analysis}
-        </p>
+        </section>
 
-      </section>
+        {/* Radar */}
+        <section className="glass-card p-6 flex flex-col items-center">
+
+          <h3 className="text-lg font-semibold mb-4">
+            Profil psychologique
+          </h3>
+
+          <div className="w-full max-w-[260px]">
+            <ProfileRadar scores={result.profileScores || emptyScores} />
+          </div>
+
+        </section>
+
+      </div>
 
       {/* BLOC ASTRAE */}
 
@@ -163,8 +158,6 @@ export default function ResultPage() {
           🎁 Recevez gratuitement votre première lecture personnalisée
         </p>
 
-        {/* FORMULAIRE */}
-
         <form
           onSubmit={submitLead}
           className="mt-6 grid gap-4 md:grid-cols-2 max-w-xl mx-auto"
@@ -186,58 +179,58 @@ export default function ResultPage() {
           />
 
           <div className="md:col-span-2">
-  <label className="text-sm text-white/70">Date de naissance</label>
+            <label className="text-sm text-white/70">Date de naissance</label>
 
-  <div className="grid grid-cols-3 gap-2 mt-2">
+            <div className="grid grid-cols-3 gap-2 mt-2">
 
-    <input
-      required
-      name="birthDay"
-      placeholder="Jour"
-      inputMode="numeric"
-      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
-    />
+              <input
+                required
+                name="birthDay"
+                placeholder="Jour"
+                inputMode="numeric"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+              />
 
-    <input
-      required
-      name="birthMonth"
-      placeholder="Mois"
-      inputMode="numeric"
-      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
-    />
+              <input
+                required
+                name="birthMonth"
+                placeholder="Mois"
+                inputMode="numeric"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+              />
 
-    <input
-      required
-      name="birthYear"
-      placeholder="Année"
-      inputMode="numeric"
-      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
-    />
+              <input
+                required
+                name="birthYear"
+                placeholder="Année"
+                inputMode="numeric"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+              />
 
-  </div>
-</div>
+            </div>
+          </div>
 
-<div className="md:col-span-2">
-  <label className="text-sm text-white/70">Heure de naissance</label>
+          <div className="md:col-span-2">
+            <label className="text-sm text-white/70">Heure de naissance</label>
 
-  <div className="grid grid-cols-2 gap-2 mt-2">
+            <div className="grid grid-cols-2 gap-2 mt-2">
 
-    <input
-      name="birthHour"
-      placeholder="Heure"
-      inputMode="numeric"
-      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
-    />
+              <input
+                name="birthHour"
+                placeholder="Heure"
+                inputMode="numeric"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+              />
 
-    <input
-      name="birthMinute"
-      placeholder="Minute"
-      inputMode="numeric"
-      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
-    />
+              <input
+                name="birthMinute"
+                placeholder="Minute"
+                inputMode="numeric"
+                className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+              />
 
-  </div>
-</div>
+            </div>
+          </div>
 
           <input
             required
@@ -255,10 +248,6 @@ export default function ResultPage() {
           </button>
 
         </form>
-
-        <p className="mt-4 text-xs text-white/50">
-          Vos informations restent confidentielles et ne seront jamais partagées.
-        </p>
 
         {leadState === "success" && (
           <p className="mt-4 text-green-300">
@@ -279,7 +268,5 @@ export default function ResultPage() {
       <ShareButtons profile={result.dominantProfile} />
 
     </main>
-
   );
-
 }
