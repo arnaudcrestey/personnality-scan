@@ -32,7 +32,7 @@ RÈGLES
 - Ne parlez jamais de "la personne".
 - Mentionnez clairement le score : ${score}%.
 - Restez naturel et facile à lire.
-- Maximum : 70 mots.
+- Maximum : 50 mots.
 
 OBJECTIF
 
