@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { ProfileRadar } from "../../components/ProfileRadar";
 import { ResultCard } from "../../components/ResultCard";
-import { ShareBu"use client";
+import { ShareButtons²}"use client";
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
