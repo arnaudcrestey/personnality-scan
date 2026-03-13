@@ -6,9 +6,9 @@ type ProfileRadarProps = {
 
 export function ProfileRadar({ scores }: ProfileRadarProps) {
 
-  const size = 420;
+  const size = 520;
   const center = size / 2;
-  const radius = 150;
+  const radius = 200;
 
   const maxValue = Math.max(1, ...Object.values(scores));
 
@@ -30,7 +30,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        className="w-[360px] h-[360px]"
+        className="w-[480px] h-[480px]"
       >
 
         {/* Grille radar */}
@@ -52,7 +52,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
               key={i}
               points={gridPoints}
               fill="none"
-              stroke="rgba(255,255,255,0.12)"
+              stroke="rgba(255,255,255,0.15)"
               strokeWidth="1"
             />
           );
@@ -67,8 +67,8 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
           const x = center + Math.cos(angle) * radius;
           const y = center + Math.sin(angle) * radius;
 
-          const labelX = center + Math.cos(angle) * (radius + 30);
-          const labelY = center + Math.sin(angle) * (radius + 30);
+          const labelX = center + Math.cos(angle) * (radius + 60);
+          const labelY = center + Math.sin(angle) * (radius + 60);
 
           return (
 
@@ -79,14 +79,14 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
                 y1={center}
                 x2={x}
                 y2={y}
-                stroke="rgba(255,255,255,0.2)"
+                stroke="rgba(255,255,255,0.25)"
               />
 
               <text
                 x={labelX}
                 y={labelY}
                 fill="white"
-                fontSize="15"
+                fontSize="20"
                 textAnchor="middle"
                 dominantBaseline="middle"
               >
@@ -104,7 +104,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
           points={points}
           fill="rgba(92,242,255,0.25)"
           stroke="#5cf2ff"
-          strokeWidth="2.5"
+          strokeWidth="3"
         />
 
       </svg>
