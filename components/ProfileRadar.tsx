@@ -6,9 +6,9 @@ type ProfileRadarProps = {
 
 export function ProfileRadar({ scores }: ProfileRadarProps) {
 
-  const size = 420;            // taille du canvas
+  const size = 420;
   const center = size / 2;
-  const radius = 160;          // rayon du radar
+  const radius = 170;
 
   const maxValue = Math.max(1, ...Object.values(scores));
 
@@ -28,11 +28,11 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
     <article className="glass-card p-6">
 
-      <div className="mx-auto mt-6 max-w-xl">
+      <div className="flex justify-center mt-6">
 
         <svg
           viewBox={`0 0 ${size} ${size}`}
-          className="mx-auto w-full h-[260px] md:h-[360px] lg:h-[460px]"
+          className="w-full max-w-[360px] md:max-w-[420px]"
         >
 
           {PROFILES.map((profile, index) => {
@@ -51,16 +51,16 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
                   y1={center}
                   x2={x}
                   y2={y}
-                  stroke="rgba(255,255,255,0.25)"
+                  stroke="rgba(255,255,255,0.3)"
                 />
 
                 <text
                   x={x}
                   y={y}
                   fill="white"
-                  fontSize="14"
+                  fontSize="16"
                   textAnchor="middle"
-                  dy={y < center ? -12 : 18}
+                  dy={y < center ? -14 : 22}
                 >
                   {profile.replace("Le ", "")}
                 </text>
