@@ -6,9 +6,9 @@ type ProfileRadarProps = {
 
 export function ProfileRadar({ scores }: ProfileRadarProps) {
 
-  const size = 480;
+  const size = 420;
   const center = size / 2;
-  const radius = 170;
+  const radius = 150;
 
   const maxValue = Math.max(1, ...Object.values(scores));
 
@@ -28,12 +28,12 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
     <div className="flex justify-center">
 
-      {/* CADRE INTERNE IDENTIQUE AU RESULTAT */}
-      <div className="bg-white/10 border border-white/20 rounded-2xl shadow-xl p-10 w-full max-w-[420px] flex justify-center">
+      {/* CADRE INTERNE */}
+      <div className="bg-white/10 border border-white/20 rounded-2xl shadow-xl p-8 w-full max-w-[420px] flex justify-center">
 
         <svg
           viewBox={`0 0 ${size} ${size}`}
-          className="w-full"
+          className="w-[340px] h-[340px]"
         >
 
           {PROFILES.map((profile, index) => {
@@ -43,8 +43,8 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
             const lineX = center + Math.cos(angle) * radius;
             const lineY = center + Math.sin(angle) * radius;
 
-            const labelX = center + Math.cos(angle) * (radius + 35);
-            const labelY = center + Math.sin(angle) * (radius + 35);
+            const labelX = center + Math.cos(angle) * (radius + 28);
+            const labelY = center + Math.sin(angle) * (radius + 28);
 
             return (
 
@@ -55,14 +55,14 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
                   y1={center}
                   x2={lineX}
                   y2={lineY}
-                  stroke="rgba(255,255,255,0.25)"
+                  stroke="rgba(255,255,255,0.3)"
                 />
 
                 <text
                   x={labelX}
                   y={labelY}
                   fill="white"
-                  fontSize="16"
+                  fontSize="15"
                   textAnchor="middle"
                   dominantBaseline="middle"
                 >
