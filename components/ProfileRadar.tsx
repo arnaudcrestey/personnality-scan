@@ -8,7 +8,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
   const size = 520;
   const center = size / 2;
-  const radius = 200;
+  const radius = 190;
 
   const maxValue = Math.max(1, ...Object.values(scores));
 
@@ -30,7 +30,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        className="w-[480px] h-[480px]"
+        className="w-full max-w-[320px] md:max-w-[420px] lg:max-w-[480px]"
       >
 
         {/* Grille radar */}
@@ -64,11 +64,13 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
           const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
 
-          const x = center + Math.cos(angle) * radius;
-          const y = center + Math.sin(angle) * radius;
+          const lineX = center + Math.cos(angle) * radius;
+          const lineY = center + Math.sin(angle) * radius;
 
-          const labelX = center + Math.cos(angle) * (radius + 60);
-          const labelY = center + Math.sin(angle) * (radius + 60);
+          const labelDistance = radius + 40;
+
+          const labelX = center + Math.cos(angle) * labelDistance;
+          const labelY = center + Math.sin(angle) * labelDistance;
 
           return (
 
@@ -77,8 +79,8 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
               <line
                 x1={center}
                 y1={center}
-                x2={x}
-                y2={y}
+                x2={lineX}
+                y2={lineY}
                 stroke="rgba(255,255,255,0.25)"
               />
 
@@ -86,7 +88,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
                 x={labelX}
                 y={labelY}
                 fill="white"
-                fontSize="20"
+                fontSize="18"
                 textAnchor="middle"
                 dominantBaseline="middle"
               >
