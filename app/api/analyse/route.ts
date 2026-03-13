@@ -1,106 +1,118 @@
-import { NextResponse } from "next/server";
+import { PROFILES, Profile } from "../lib/quiz";
 
-export const runtime = "nodejs";
+type ProfileRadarProps = {
+  scores: Record<Profile, number>;
+};
 
-export async function POST(request: Request) {
+export function ProfileRadar({ scores }: ProfileRadarProps) {
 
-  const body = await request.json();
+  const size = 520;
+  const center = size / 2;
+  const radius = 190;
 
-  const { answers, profile, score } = body as {
-    answers: string[];
-    profile: string;
-    score: number;
-  };
+  const maxValue = Math.max(1, ...Object.values(scores));
 
-  const prompt = `
-Vous êtes un expert en psychologie de la personnalité.
+  const levels = [0.25, 0.5, 0.75, 1];
 
-Votre mission est de fournir une analyse claire et crédible
-à partir d’un test de personnalité basé sur 10 questions.
+  const points = PROFILES.map((profile, index) => {
+    const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
+    const value = scores[profile] / maxValue;
 
-INFORMATIONS
+    const x = center + Math.cos(angle) * radius * value;
+    const y = center + Math.sin(angle) * radius * value;
 
-Profil dominant : ${profile}
-Score psychologique : ${score} %
+    return `${x},${y}`;
+  }).join(" ");
 
-Réponses au questionnaire :
-${(answers || []).join("\n")}
+  return (
 
-RÈGLES
+    <div className="flex justify-center py-6">
 
-- Adressez-vous directement à la personne ("vous").
-- Ne parlez jamais de "la personne".
-- Mentionnez clairement le score : ${score}%.
-- Restez naturel et facile à lire.
-- Maximum : 70 mots.
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="w-full max-w-[320px] md:max-w-[420px] lg:max-w-[480px]"
+      >
 
-OBJECTIF
+        {/* Grille radar */}
+        {levels.map((level, i) => {
 
-Expliquez brièvement :
+          const gridPoints = PROFILES.map((_, index) => {
 
-- ce que révèle ce score
-- les forces principales du profil ${profile}
-- une dynamique psychologique possible
+            const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
 
-Terminez par une phrase ouvrant vers une réflexion personnelle.
-`;
+            const x = center + Math.cos(angle) * radius * level;
+            const y = center + Math.sin(angle) * radius * level;
 
-  const apiKey = process.env.OPENAI_API_KEY;
+            return `${x},${y}`;
 
-  if (!apiKey) {
-    return NextResponse.json({
-      analysis:
-        "Votre profil indique une dynamique psychologique claire : vous combinez réflexion, perception des opportunités et adaptation au contexte. Avec un score de " +
-        score +
-        "%, vous montrez une capacité à analyser les situations tout en restant attentif à leur dimension humaine. Votre potentiel s’exprime particulièrement lorsque vous structurez vos priorités et avancez avec constance."
-    });
-  }
+          }).join(" ");
 
-  try {
+          return (
+            <polygon
+              key={i}
+              points={gridPoints}
+              fill="none"
+              stroke="rgba(255,255,255,0.15)"
+              strokeWidth="1"
+            />
+          );
 
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 180
-        })
-      }
-    );
+        })}
 
-    if (!response.ok) {
-      throw new Error("OpenAI call failed");
-    }
+        {/* Axes */}
+        {PROFILES.map((profile, index) => {
 
-    const data = await response.json();
+          const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
 
-    const analysis =
-      data.choices?.[0]?.message?.content?.trim() ||
-      "Analyse indisponible.";
+          const lineX = center + Math.cos(angle) * radius;
+          const lineY = center + Math.sin(angle) * radius;
 
-    return NextResponse.json({ analysis });
+          const labelDistance = radius + 40;
 
-  } catch {
+          const labelX = center + Math.cos(angle) * labelDistance;
+          const labelY = center + Math.sin(angle) * labelDistance;
 
-    return NextResponse.json({
-      analysis:
-        "Avec un score de " +
-        score +
-        "%, votre profil suggère une personnalité capable de combiner analyse, intuition et adaptation. Votre manière de réfléchir vous permet d’identifier rapidement les enjeux essentiels d’une situation. Vous gagnez à transformer cette capacité d’analyse en décisions concrètes en clarifiant régulièrement vos priorités."
-    });
+          return (
 
-  }
+            <g key={profile}>
+
+              <line
+                x1={center}
+                y1={center}
+                x2={lineX}
+                y2={lineY}
+                stroke="rgba(255,255,255,0.25)"
+              />
+
+              <text
+                x={labelX}
+                y={labelY}
+                fill="white"
+                fontSize="18"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                {profile.replace("Le ", "")}
+              </text>
+
+            </g>
+
+          );
+
+        })}
+
+        {/* Données */}
+        <polygon
+          points={points}
+          fill="rgba(92,242,255,0.25)"
+          stroke="#5cf2ff"
+          strokeWidth="3"
+        />
+
+      </svg>
+
+    </div>
+
+  );
 
 }
