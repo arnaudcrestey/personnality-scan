@@ -43,7 +43,7 @@ export default function ResultPage() {
       .then((data: { analysis?: string }) => {
         setAnalysis(
           data.analysis ||
-            "Votre profil révèle une personnalité nuancée avec des forces qui peuvent s'exprimer dans différents contextes."
+          "Votre profil révèle une personnalité nuancée avec des forces qui peuvent s'exprimer dans différents contextes."
         );
       })
       .catch(() => {
@@ -139,6 +139,11 @@ export default function ResultPage() {
           Analyse personnalisée
         </h3>
 
+        <p className="mt-3 text-white/70 text-sm leading-relaxed">
+          Ce score reflète certaines tendances dans votre manière d’analyser les situations,
+          de prendre des décisions et d’interagir avec votre environnement.
+        </p>
+
         <p className="mt-4 leading-relaxed text-white/85">
           {analysis}
         </p>
@@ -147,111 +152,90 @@ export default function ResultPage() {
 
       {/* BLOC ASTRAE */}
 
-      {leadState !== "success" && (
+      <section className="glass-card p-8 text-center">
 
-        <section className="glass-card p-8 text-center">
+        <h3 className="text-2xl font-semibold">
+          Comprendre réellement votre fonctionnement personnel
+        </h3>
 
-          <h3 className="text-2xl font-semibold">
-            Comprendre réellement votre fonctionnement personnel
-          </h3>
+        <p className="mt-4 text-white/80 max-w-xl mx-auto">
+          Certaines dynamiques personnelles peuvent être liées à des facteurs
+          plus profonds que les seules situations du quotidien.
+        </p>
 
-          <p className="mt-4 text-white/80 max-w-xl mx-auto">
-            Certaines dynamiques personnelles peuvent être liées à des facteurs
-            plus profonds que les seules situations du quotidien.
-          </p>
+        <p className="mt-3 text-white/80 max-w-xl mx-auto">
+          Au Cabinet Astrae, l’étude du thème astral est utilisée comme outil
+          d’introspection pour mieux comprendre les dynamiques personnelles
+          qui influencent vos choix et vos orientations de vie.
+        </p>
 
-          <p className="mt-3 text-white/80 max-w-xl mx-auto">
-            Au Cabinet Astrae, l’étude du thème astral est utilisée comme outil
-            d’introspection pour mieux comprendre les dynamiques personnelles
-            qui influencent vos choix et vos orientations de vie.
-          </p>
+        <p className="mt-6 font-medium">
+          🎁 Recevez <span className="font-bold text-cyan-400">gratuitement</span> votre première lecture personnalisée
+        </p>
 
-          <p className="mt-6 font-medium">
-            🎁 Recevez gratuitement votre première lecture personnalisée
-          </p>
+        <form
+          onSubmit={submitLead}
+          className="mt-6 grid gap-4 md:grid-cols-2 max-w-xl mx-auto"
+        >
 
-          <form
-            onSubmit={submitLead}
-            className="mt-6 grid gap-4 md:grid-cols-2 max-w-xl mx-auto"
+          <input
+            required
+            name="firstName"
+            placeholder="Votre prénom"
+            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
+          />
+
+          <input
+            required
+            type="email"
+            name="email"
+            placeholder="Votre email"
+            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
+          />
+
+          <div className="md:col-span-2 grid grid-cols-3 gap-2">
+
+            <input required name="birthDay" placeholder="Jour" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
+            <input required name="birthMonth" placeholder="Mois" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
+            <input required name="birthYear" placeholder="Année" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
+
+          </div>
+
+          <div className="md:col-span-2 grid grid-cols-2 gap-2">
+
+            <input name="birthHour" placeholder="Heure" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
+            <input name="birthMinute" placeholder="Minute" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
+
+          </div>
+
+          <input
+            required
+            name="birthCity"
+            placeholder="Ville de naissance"
+            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 md:col-span-2"
+          />
+
+          <button
+            type="submit"
+            disabled={leadState === "loading"}
+            className="md:col-span-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 font-semibold text-black hover:opacity-90"
           >
+            Recevoir ma première analyse
+          </button>
 
-            <input
-              required
-              name="firstName"
-              placeholder="Votre prénom"
-              className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
-            />
+        </form>
 
-            <input
-              required
-              type="email"
-              name="email"
-              placeholder="Votre email"
-              className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
-            />
+      </section>
 
-            <div className="md:col-span-2 grid grid-cols-3 gap-2">
-
-              <input required name="birthDay" placeholder="Jour" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-              <input required name="birthMonth" placeholder="Mois" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-              <input required name="birthYear" placeholder="Année" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-
-            </div>
-
-            <div className="md:col-span-2 grid grid-cols-2 gap-2">
-
-              <input name="birthHour" placeholder="Heure" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-              <input name="birthMinute" placeholder="Minute" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-
-            </div>
-
-            <input
-              required
-              name="birthCity"
-              placeholder="Ville de naissance"
-              className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 md:col-span-2"
-            />
-
-            <button
-              type="submit"
-              disabled={leadState === "loading"}
-              className="md:col-span-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 font-semibold text-black hover:opacity-90"
-            >
-              Recevoir ma première analyse
-            </button>
-
-          </form>
-
-        </section>
-
-      )}
-
-      {/* PAGE REMERCIEMENT */}
+      {/* TOAST REMERCIEMENT */}
 
       {leadState === "success" && (
 
-        <section className="glass-card p-10 text-center">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-400 text-black px-6 py-3 rounded-xl shadow-xl text-sm font-semibold">
 
-          <h2 className="text-2xl font-semibold">
-            Merci pour votre demande
-          </h2>
+          ✔ Merci ! Votre analyse vous sera envoyée par email.
 
-          <p className="mt-4 text-white/80 max-w-xl mx-auto">
-            Votre première analyse personnalisée vous sera envoyée par email.
-          </p>
-
-          <p className="mt-2 text-white/60">
-            Pensez à vérifier votre boîte spam si nécessaire.
-          </p>
-
-          <Link
-            href="/"
-            className="inline-block mt-6 text-neon underline"
-          >
-            Retour à l'accueil
-          </Link>
-
-        </section>
+        </div>
 
       )}
 
