@@ -8,7 +8,7 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
   const size = 420;
   const center = size / 2;
-  const radius = 150;
+  const radius = 140;
 
   const maxValue = Math.max(1, ...Object.values(scores));
 
@@ -26,62 +26,67 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
 
   return (
 
-    <div className="flex justify-center items-center py-6">
+    <article className="flex justify-center">
 
-      <svg
-        viewBox={`0 0 ${size} ${size}`}
-        className="w-full max-w-[320px] md:max-w-[360px]"
-      >
+      {/* CADRE INTERIEUR */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl shadow-xl p-8 w-full max-w-[320px] flex justify-center">
 
-        {PROFILES.map((profile, index) => {
+        <svg
+          viewBox={`0 0 ${size} ${size}`}
+          className="w-full"
+        >
 
-          const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
+          {PROFILES.map((profile, index) => {
 
-          const lineX = center + Math.cos(angle) * radius;
-          const lineY = center + Math.sin(angle) * radius;
+            const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
 
-          const labelX = center + Math.cos(angle) * (radius + 25);
-          const labelY = center + Math.sin(angle) * (radius + 25);
+            const lineX = center + Math.cos(angle) * radius;
+            const lineY = center + Math.sin(angle) * radius;
 
-          return (
+            const labelX = center + Math.cos(angle) * (radius + 30);
+            const labelY = center + Math.sin(angle) * (radius + 30);
 
-            <g key={profile}>
+            return (
 
-              <line
-                x1={center}
-                y1={center}
-                x2={lineX}
-                y2={lineY}
-                stroke="rgba(255,255,255,0.25)"
-              />
+              <g key={profile}>
 
-              <text
-                x={labelX}
-                y={labelY}
-                fill="white"
-                fontSize="15"
-                textAnchor="middle"
-                dominantBaseline="middle"
-              >
-                {profile.replace("Le ", "")}
-              </text>
+                <line
+                  x1={center}
+                  y1={center}
+                  x2={lineX}
+                  y2={lineY}
+                  stroke="rgba(255,255,255,0.25)"
+                />
 
-            </g>
+                <text
+                  x={labelX}
+                  y={labelY}
+                  fill="white"
+                  fontSize="15"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  {profile.replace("Le ", "")}
+                </text>
 
-          );
+              </g>
 
-        })}
+            );
 
-        <polygon
-          points={points}
-          fill="rgba(92,242,255,0.25)"
-          stroke="#5cf2ff"
-          strokeWidth="2"
-        />
+          })}
 
-      </svg>
+          <polygon
+            points={points}
+            fill="rgba(92,242,255,0.25)"
+            stroke="#5cf2ff"
+            strokeWidth="2"
+          />
 
-    </div>
+        </svg>
+
+      </div>
+
+    </article>
 
   );
 
