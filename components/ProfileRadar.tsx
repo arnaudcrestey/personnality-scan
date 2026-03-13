@@ -6,36 +6,33 @@ type ProfileRadarProps = {
 
 export function ProfileRadar({ scores }: ProfileRadarProps) {
 
-  const size = 360;
+  const size = 420;            // taille du canvas
   const center = size / 2;
-  const radius = 130;
+  const radius = 160;          // rayon du radar
 
   const maxValue = Math.max(1, ...Object.values(scores));
 
   const points = PROFILES.map((profile, index) => {
-    const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
 
+    const angle = (Math.PI * 2 * index) / PROFILES.length - Math.PI / 2;
     const value = scores[profile] / maxValue;
 
     const x = center + Math.cos(angle) * radius * value;
     const y = center + Math.sin(angle) * radius * value;
 
     return `${x},${y}`;
+
   }).join(" ");
 
   return (
 
     <article className="glass-card p-6">
 
-      <h3 className="text-lg font-semibold">
-        Radar de personnalité
-      </h3>
-
       <div className="mx-auto mt-6 max-w-xl">
 
         <svg
           viewBox={`0 0 ${size} ${size}`}
-          className="w-full h-[260px] md:h-[340px] lg:h-[420px]"
+          className="mx-auto w-full h-[260px] md:h-[360px] lg:h-[460px]"
         >
 
           {PROFILES.map((profile, index) => {
@@ -61,9 +58,9 @@ export function ProfileRadar({ scores }: ProfileRadarProps) {
                   x={x}
                   y={y}
                   fill="white"
-                  fontSize="12"
+                  fontSize="14"
                   textAnchor="middle"
-                  dy={y < center ? -10 : 16}
+                  dy={y < center ? -12 : 18}
                 >
                   {profile.replace("Le ", "")}
                 </text>
