@@ -89,6 +89,44 @@ export default function ResultPage() {
 
   };
 
+  /* ================================
+     PAGE DE REMERCIEMENT (LoveScan)
+  ================================= */
+
+  if (leadState === "success") {
+    return (
+
+      <main className="flex min-h-screen items-center justify-center px-6 text-center">
+
+        <div className="glass-card max-w-xl p-10">
+
+          <h2 className="text-3xl font-semibold text-white mb-4">
+            ✓ Demande envoyée
+          </h2>
+
+          <p className="text-white/80 leading-relaxed">
+            Votre première lecture personnalisée vous sera envoyée
+            par email dans quelques instants.
+          </p>
+
+          <p className="text-white/60 text-sm mt-4">
+            Pensez à vérifier vos spams si vous ne voyez rien apparaître.
+          </p>
+
+          <Link
+            href="/"
+            className="inline-block mt-8 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-black font-semibold"
+          >
+            Retour à l'accueil
+          </Link>
+
+        </div>
+
+      </main>
+
+    );
+  }
+
   if (!result) {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
@@ -117,6 +155,14 @@ export default function ResultPage() {
             score={result.score}
           />
 
+          {/* Phrase sous le score */}
+
+          <p className="mt-4 text-sm text-white/70 leading-relaxed">
+            Ce score reflète certaines tendances dans votre manière
+            d’analyser les situations, de prendre des décisions
+            et d’interagir avec votre environnement.
+          </p>
+
         </section>
 
         <section className="glass-card p-6 flex flex-col items-center">
@@ -138,11 +184,6 @@ export default function ResultPage() {
         <h3 className="text-lg font-semibold">
           Analyse personnalisée
         </h3>
-
-        <p className="mt-3 text-white/70 text-sm leading-relaxed">
-          Ce score reflète certaines tendances dans votre manière d’analyser les situations,
-          de prendre des décisions et d’interagir avec votre environnement.
-        </p>
 
         <p className="mt-4 leading-relaxed text-white/85">
           {analysis}
@@ -226,18 +267,6 @@ export default function ResultPage() {
         </form>
 
       </section>
-
-      {/* TOAST REMERCIEMENT */}
-
-      {leadState === "success" && (
-
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-400 text-black px-6 py-3 rounded-xl shadow-xl text-sm font-semibold">
-
-          ✔ Merci ! Votre analyse vous sera envoyée par email.
-
-        </div>
-
-      )}
 
       {/* PARTAGE */}
 
