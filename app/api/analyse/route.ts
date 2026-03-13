@@ -13,22 +13,45 @@ Vous êtes un analyste spécialisé en psychologie de la personnalité.
 
 Une personne vient de compléter un test de personnalité.
 
-Score global : ${score}%
+Score global de personnalité : ${score}%
 Profil dominant : ${profile}
 
 Réponses au test :
 ${(answers || []).join("\n")}
 
-Rédigez une analyse claire et utile (80 mots maximum).
+MISSION
 
-Règles :
+Rédiger une analyse courte et utile expliquant ce que révèle ce score et ce profil.
 
-- Adressez-vous directement à la personne ("vous")
-- Ton professionnel et bienveillant
-- Expliquez les forces principales
-- Mentionnez une piste d'évolution possible
+RÈGLES IMPORTANTES
+
+- Adressez-vous directement à la personne ("vous").
+- Le score ${score}% doit apparaître clairement dans votre analyse.
+- Expliquez ce que signifie un score de ${score}% pour son fonctionnement psychologique.
+- Mentionnez les principales forces associées au profil ${profile}.
+- Ajoutez une piste d’évolution ou de réflexion.
+- Ton professionnel, clair et bienveillant.
+- Texte naturel et crédible.
+- Maximum : 70 à 90 mots.
+
+STRUCTURE
+
+Analyse
+
+Expliquez ce que signifie un score de ${score}% dans la manière de penser,
+d’analyser les situations et de prendre des décisions.
+
+Terminez par une ouverture expliquant que certaines dynamiques personnelles
+peuvent être liées à des facteurs plus profonds comme :
+
+- la personnalité
+- l’histoire de vie
+- les cycles personnels
+- les motivations profondes
+
+Mentionnez que le Cabinet Astrae propose une analyse plus approfondie
+pour explorer ces mécanismes, notamment grâce à l’étude du thème astral.
 `;
-
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
