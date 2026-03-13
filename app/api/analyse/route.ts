@@ -3,50 +3,104 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { answers, profile } = body as { answers: string[]; profile: string; score: number };
 
-  const prompt = `You are a personality analyst. Based on the quiz answers and the detected personality profile, write a short analysis (80 words) explaining the person's psychological functioning and decision-making style.\n\nProfile: ${profile}\nAnswers:\n${(answers || []).join("\n")}`;
+  const body = await request.json();
+
+  const { answers, profile, score } = body as {
+    answers: string[];
+    profile: string;
+    score: number;
+  };
+
+  const prompt = `
+Vous êtes un expert en psychologie de la personnalité.
+
+Votre mission est de fournir une analyse claire et crédible
+à partir d’un test de personnalité basé sur 10 questions.
+
+INFORMATIONS
+
+Profil dominant : ${profile}
+Score psychologique : ${score} %
+
+Réponses au questionnaire :
+${(answers || []).join("\n")}
+
+RÈGLES
+
+- Adressez-vous directement à la personne ("vous").
+- Ne parlez jamais de "la personne".
+- Mentionnez clairement le score : ${score}%.
+- Restez naturel et facile à lire.
+- Maximum : 70 mots.
+
+OBJECTIF
+
+Expliquez brièvement :
+
+- ce que révèle ce score
+- les forces principales du profil ${profile}
+- une dynamique psychologique possible
+
+Terminez par une phrase ouvrant vers une réflexion personnelle.
+`;
 
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json({
       analysis:
-        "Votre profil indique une dynamique psychologique claire : vous combinez réflexion, perception des opportunités et adaptation au contexte. Vous prenez vos décisions en équilibrant logique, ressenti et impact relationnel. Cette flexibilité vous permet d'évoluer dans des situations complexes tout en gardant un cap cohérent. Votre potentiel se révèle particulièrement lorsque vous structurez vos priorités et agissez avec constance."
+        "Votre profil indique une dynamique psychologique claire : vous combinez réflexion, perception des opportunités et adaptation au contexte. Avec un score de " +
+        score +
+        "%, vous montrez une capacité à analyser les situations tout en restant attentif à leur dimension humaine. Votre potentiel s’exprime particulièrement lorsque vous structurez vos priorités et avancez avec constance."
     });
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.8,
-        max_tokens: 180
-      })
-    });
+
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 180
+        })
+      }
+    );
 
     if (!response.ok) {
-      throw new Error("Failed to call OpenAI");
+      throw new Error("OpenAI call failed");
     }
 
     const data = await response.json();
-    const analysis = data.choices?.[0]?.message?.content?.trim();
+
+    const analysis =
+      data.choices?.[0]?.message?.content?.trim() ||
+      "Analyse indisponible.";
 
     return NextResponse.json({ analysis });
+
   } catch {
-    return NextResponse.json(
-      {
-        analysis:
-          "Votre mode de fonctionnement suggère une personnalité orientée vers la compréhension fine des enjeux avant action. Vous cherchez un équilibre entre projection, efficacité et cohérence émotionnelle. Dans vos décisions, vous gagnez à associer votre intuition à des repères concrets. Cette combinaison vous rend pertinent dans les contextes exigeants. Pour amplifier vos résultats, clarifiez vos priorités clés et transformez vos intentions en routines simples et régulières."
-      },
-      { status: 200 }
-    );
+
+    return NextResponse.json({
+      analysis:
+        "Avec un score de " +
+        score +
+        "%, votre profil suggère une personnalité capable de combiner analyse, intuition et adaptation. Votre manière de réfléchir vous permet d’identifier rapidement les enjeux essentiels d’une situation. Vous gagnez à transformer cette capacité d’analyse en décisions concrètes en clarifiant régulièrement vos priorités."
+    });
+
   }
+
 }
