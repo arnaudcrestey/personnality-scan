@@ -185,19 +185,59 @@ export default function ResultPage() {
             className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
           />
 
-          <input
-            required
-            type="date"
-            name="birthDate"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
-          />
+          <div className="md:col-span-2">
+  <label className="text-sm text-white/70">Date de naissance</label>
 
-          <input
-            required
-            type="time"
-            name="birthTime"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
-          />
+  <div className="grid grid-cols-3 gap-2 mt-2">
+
+    <input
+      required
+      name="birthDay"
+      placeholder="Jour"
+      inputMode="numeric"
+      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+    />
+
+    <input
+      required
+      name="birthMonth"
+      placeholder="Mois"
+      inputMode="numeric"
+      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+    />
+
+    <input
+      required
+      name="birthYear"
+      placeholder="Année"
+      inputMode="numeric"
+      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+    />
+
+  </div>
+</div>
+
+<div className="md:col-span-2">
+  <label className="text-sm text-white/70">Heure de naissance</label>
+
+  <div className="grid grid-cols-2 gap-2 mt-2">
+
+    <input
+      name="birthHour"
+      placeholder="Heure"
+      inputMode="numeric"
+      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+    />
+
+    <input
+      name="birthMinute"
+      placeholder="Minute"
+      inputMode="numeric"
+      className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center"
+    />
+
+  </div>
+</div>
 
           <input
             required
