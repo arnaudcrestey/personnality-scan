@@ -14,14 +14,17 @@ const emptyScores = Object.fromEntries(
 ) as QuizResult["profileScores"];
 
 export default function ResultPage() {
+
   const [result, setResult] = useState<QuizResult | null>(null);
   const [analysis, setAnalysis] = useState(
-    "Analyse de votre profil en cours..."
+    "Analyse personnalisée en cours..."
   );
   const [leadState, setLeadState] = useState<LeadState>("idle");
 
   useEffect(() => {
+
     const raw = localStorage.getItem("personality_result");
+
     if (!raw) return;
 
     const parsed = JSON.parse(raw) as QuizResult;
@@ -30,19 +33,19 @@ export default function ResultPage() {
     fetch("/api/analyse", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         answers: parsed.answers,
         profile: parsed.dominantProfile,
-        score: parsed.score,
-      }),
+        score: parsed.score
+      })
     })
       .then((res) => res.json())
       .then((data: { analysis?: string }) => {
         setAnalysis(
           data.analysis ||
-            "Votre profil révèle une personnalité nuancée et adaptable."
+            "Votre profil révèle une personnalité nuancée avec des forces qui peuvent s'exprimer dans différents contextes."
         );
       })
       .catch(() => {
@@ -50,10 +53,13 @@ export default function ResultPage() {
           "Votre analyse personnalisée sera disponible dans quelques instants."
         );
       });
+
   }, []);
 
   const submitLead = async (event: FormEvent<HTMLFormElement>) => {
+
     event.preventDefault();
+
     if (!result) return;
 
     setLeadState("loading");
@@ -67,25 +73,30 @@ export default function ResultPage() {
       birthTime: String(formData.get("birthTime") || ""),
       birthCity: String(formData.get("birthCity") || ""),
       score: result.score,
-      profile: result.dominantProfile,
+      profile: result.dominantProfile
     };
 
     const response = await fetch("/api/lead-personality", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
     setLeadState(response.ok ? "success" : "error");
+
   };
 
   if (!result) {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
+
         <div className="glass-card max-w-xl p-8 text-center">
-          <p className="text-white/80">Aucun résultat trouvé.</p>
+
+          <p className="text-white/80">
+            Aucun résultat trouvé.
+          </p>
 
           <Link
             href="/start"
@@ -93,41 +104,76 @@ export default function ResultPage() {
           >
             Faire le test
           </Link>
+
         </div>
+
       </main>
     );
   }
 
   return (
+
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-10">
 
-      <ResultCard profile={result.dominantProfile} score={result.score} />
+      {/* RESULTAT */}
 
-      <ProfileRadar scores={result.profileScores || emptyScores} />
+      <ResultCard
+        profile={result.dominantProfile}
+        score={result.score}
+      />
+
+      <ProfileRadar
+        scores={result.profileScores || emptyScores}
+      />
+
+      {/* ANALYSE */}
 
       <section className="glass-card p-6">
+
         <h3 className="text-lg font-semibold">
-          Analyse de votre profil
+          Analyse personnalisée
         </h3>
 
         <p className="mt-4 leading-relaxed text-white/85">
           {analysis}
         </p>
+
       </section>
 
-      <section className="glass-card p-6">
-        <h3 className="text-lg font-semibold">
-          Recevoir votre analyse personnalisée
+      {/* BLOC ASTRAE */}
+
+      <section className="glass-card p-8 text-center">
+
+        <h3 className="text-2xl font-semibold">
+          Comprendre réellement votre fonctionnement personnel
         </h3>
 
+        <p className="mt-4 text-white/80 max-w-xl mx-auto">
+          Certaines dynamiques personnelles peuvent être liées à des facteurs
+          plus profonds que les seules situations du quotidien.
+        </p>
+
+        <p className="mt-3 text-white/80 max-w-xl mx-auto">
+          Au Cabinet Astrae, l’étude du thème astral est utilisée comme outil
+          d’introspection pour mieux comprendre les dynamiques personnelles
+          qui influencent vos choix et vos orientations de vie.
+        </p>
+
+        <p className="mt-6 font-medium">
+          🎁 Recevez gratuitement votre première lecture personnalisée
+        </p>
+
+        {/* FORMULAIRE */}
+
         <form
-          className="mt-4 grid gap-4 md:grid-cols-2"
           onSubmit={submitLead}
+          className="mt-6 grid gap-4 md:grid-cols-2 max-w-xl mx-auto"
         >
+
           <input
             required
             name="firstName"
-            placeholder="Prénom"
+            placeholder="Votre prénom"
             className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
           />
 
@@ -135,7 +181,7 @@ export default function ResultPage() {
             required
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Votre email"
             className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
           />
 
@@ -163,11 +209,16 @@ export default function ResultPage() {
           <button
             type="submit"
             disabled={leadState === "loading"}
-            className="md:col-span-2 rounded-xl border border-neon/50 bg-neon/15 px-5 py-3 font-semibold text-neon hover:bg-neon/25 disabled:opacity-70"
+            className="md:col-span-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 font-semibold text-black hover:opacity-90"
           >
-            Recevoir mon analyse personnalisée
+            Recevoir ma première analyse
           </button>
+
         </form>
+
+        <p className="mt-4 text-xs text-white/50">
+          Vos informations restent confidentielles et ne seront jamais partagées.
+        </p>
 
         {leadState === "success" && (
           <p className="mt-4 text-green-300">
@@ -180,10 +231,15 @@ export default function ResultPage() {
             Une erreur est survenue lors de l'envoi.
           </p>
         )}
+
       </section>
+
+      {/* PARTAGE */}
 
       <ShareButtons profile={result.dominantProfile} />
 
     </main>
+
   );
+
 }
