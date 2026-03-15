@@ -67,11 +67,11 @@ ${analysis}
 `;
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Votre analyse Personality Scan",
-    text: message
-  });
+  from: process.env.EMAIL_USER,
+  to: "arnaud.crestey14@gmail.com",
+  subject: "Nouvelle analyse Personality Scan",
+  text: message
+});
 
   return NextResponse.json({ success: true });
 }
