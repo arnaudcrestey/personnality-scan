@@ -8,70 +8,118 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
 
-  const body = await req.json();
+  try {
 
-  const {
-    firstName,
-    email,
-    birthDay,
-    birthMonth,
-    birthYear,
-    birthHour,
-    birthMinute,
-    birthCity,
-    score,
-    profile
-  } = body;
+    const body = await req.json();
 
-  const prompt = `
+    const {
+      firstName,
+      email,
+      birthDay,
+      birthMonth,
+      birthYear,
+      birthHour,
+      birthMinute,
+      birthCity,
+      score,
+      profile
+    } = body;
+
+    // 🔥 PROMPT IA (amélioré)
+    const prompt = `
 Vous êtes un expert en psychologie de la personnalité.
 
-Profil : ${profile}
+Profil détecté : ${profile}
 Score : ${score}%
 
-Rédigez une analyse courte (80 mots) expliquant ce profil.
+Rédigez une analyse claire, professionnelle et utile (80 mots maximum).
+
+- Adressez-vous directement à la personne ("vous")
+- Mettez en avant ses forces
+- Ajoutez une piste d'évolution
 `;
 
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }]
-  });
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }]
+    });
 
-  const analysis = completion.choices[0].message.content;
+    const analysis = completion.choices[0].message.content || "Analyse indisponible.";
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+    // 🔥 MAILER
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
 
-  const message = `
-Analyse Personality Scan
+    // 🔥 HTML PRO
+    const htmlContent = `
+      <h2>🧠 Nouveau lead Personality Scan</h2>
+      <p>Un utilisateur vient de compléter le diagnostic.</p>
 
-Prénom : ${firstName}
-Email : ${email}
+      <hr/>
 
-Date de naissance :
-${birthDay}/${birthMonth}/${birthYear}
-${birthHour}:${birthMinute}
-Ville : ${birthCity}
+      <h3>👤 Informations</h3>
+      <p><strong>Prénom :</strong> ${firstName}</p>
+      <p><strong>Email :</strong> <a href="mailto:${email}">${email}</a></p>
 
-Profil : ${profile}
-Score : ${score}%
+      <hr/>
 
-Analyse :
+      <h3>📊 Résultat</h3>
+      <p><strong>Score :</strong> ${score}%</p>
+      <p><strong>Profil :</strong> ${profile}</p>
+      <p><strong>Niveau :</strong> ${
+        score > 70 ? "Élevé" : score > 40 ? "Moyen" : "À renforcer"
+      }</p>
 
-${analysis}
-`;
+      <hr/>
 
-  await transporter.sendMail({
-  from: process.env.EMAIL_USER,
-  to: "arnaud.crestey14@gmail.com",
-  subject: "Nouvelle analyse Personality Scan",
-  text: message
-});
+      <h3>🪐 Données personnelles</h3>
+      <ul>
+        <li><strong>Date :</strong> ${birthDay}/${birthMonth}/${birthYear}</li>
+        <li><strong>Heure :</strong> ${birthHour || "--"}:${birthMinute || "--"}</li>
+        <li><strong>Ville :</strong> ${birthCity}</li>
+      </ul>
 
-  return NextResponse.json({ success: true });
+      <hr/>
+
+      <h3>🧠 Analyse IA</h3>
+      <p style="white-space:pre-line;">${analysis}</p>
+
+      <hr/>
+
+      <p>
+        <a href="mailto:${email}" 
+           style="background:#06b6d4;color:white;padding:10px 15px;border-radius:8px;text-decoration:none;">
+          Contacter ce lead
+        </a>
+      </p>
+
+      <p style="margin-top:20px;font-size:12px;color:#888;">
+        Lead généré via Personality Scan — Cabinet Astrae
+      </p>
+    `;
+
+    await transporter.sendMail({
+      from: `"Personality Scan - Cabinet Astrae" <${process.env.EMAIL_USER}>`,
+      to: "arnaud.crestey14@gmail.com",
+      subject: "🧠 Nouveau lead Personality Scan",
+      html: htmlContent
+    });
+
+    return NextResponse.json({ success: true });
+
+  } catch (error) {
+
+    console.error("Erreur API :", error);
+
+    return NextResponse.json(
+      { success: false },
+      { status: 500 }
+    );
+
+  }
 }
