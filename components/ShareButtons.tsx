@@ -12,7 +12,7 @@ export function ShareButtons({ profile }: ShareButtonsProps) {
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/personality-scan`
-      : "https://personality-scan.vercel.app/personality-scan";
+      : "https://personnality-scan.vercel.app/personality-scan";
 
   const shareText = `J’ai découvert mon profil de personnalité avec Personality Scan : ${profile}. Découvrez votre propre profil en quelques minutes.`;
 
