@@ -7,9 +7,7 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
-
   try {
-
     const body = await req.json();
 
     const {
@@ -25,7 +23,38 @@ export async function POST(req: Request) {
       profile
     } = body;
 
-    // 🔥 PROMPT IA (amélioré)
+    if (
+      !firstName ||
+      !email ||
+      !birthDay ||
+      !birthMonth ||
+      !birthYear ||
+      !birthCity ||
+      score === undefined ||
+      !profile
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Données incomplètes." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !process.env.OPENAI_API_KEY ||
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_PORT ||
+      !process.env.SMTP_USER ||
+      !process.env.SMTP_PASS ||
+      !process.env.LEAD_EMAIL
+    ) {
+      console.error("Missing environment variables");
+
+      return NextResponse.json(
+        { success: false, error: "Configuration serveur incomplète." },
+        { status: 500 }
+      );
+    }
+
     const prompt = `
 Vous êtes un expert en psychologie de la personnalité.
 
@@ -44,18 +73,21 @@ Rédigez une analyse claire, professionnelle et utile (80 mots maximum).
       messages: [{ role: "user", content: prompt }]
     });
 
-    const analysis = completion.choices[0].message.content || "Analyse indisponible.";
+    const analysis =
+      completion.choices[0].message.content || "Analyse indisponible.";
 
-    // 🔥 MAILER
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: Number(process.env.SMTP_PORT) === 465,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
       }
     });
 
-    // 🔥 HTML PRO
+    await transporter.verify();
+
     const htmlContent = `
       <h2>🧠 Nouveau lead Personality Scan</h2>
       <p>Un utilisateur vient de compléter le diagnostic.</p>
@@ -87,12 +119,12 @@ Rédigez une analyse claire, professionnelle et utile (80 mots maximum).
       <hr/>
 
       <h3>🧠 Analyse IA</h3>
-      <p style="white-space:pre-line;">${analysis}</p>
+      <p style="white-space: pre-line;">${analysis}</p>
 
       <hr/>
 
       <p>
-        <a href="mailto:${email}" 
+        <a href="mailto:${email}"
            style="background:#06b6d4;color:white;padding:10px 15px;border-radius:8px;text-decoration:none;">
           Contacter ce lead
         </a>
@@ -104,22 +136,19 @@ Rédigez une analyse claire, professionnelle et utile (80 mots maximum).
     `;
 
     await transporter.sendMail({
-      from: `"Personality Scan - Cabinet Astrae" <${process.env.EMAIL_USER}>`,
-      to: "contact@cabinet-astrae.fr",
+      from: `"Personality Scan - Cabinet Astrae" <${process.env.SMTP_USER}>`,
+      to: process.env.LEAD_EMAIL,
       subject: "🧠 Nouveau lead Personality Scan",
       html: htmlContent
     });
 
     return NextResponse.json({ success: true });
-
   } catch (error) {
-
     console.error("Erreur API :", error);
 
     return NextResponse.json(
-      { success: false },
+      { success: false, error: "Erreur serveur." },
       { status: 500 }
     );
-
   }
 }
