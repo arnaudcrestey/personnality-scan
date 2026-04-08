@@ -105,7 +105,7 @@ Rédigez une analyse claire, professionnelle et utile (80 mots maximum).
 
     await transporter.sendMail({
       from: `"Personality Scan - Cabinet Astrae" <${process.env.EMAIL_USER}>`,
-      to: "arnaud.crestey14@gmail.com",
+      to: "contact@cabinet-astrae.fr",
       subject: "🧠 Nouveau lead Personality Scan",
       html: htmlContent
     });
