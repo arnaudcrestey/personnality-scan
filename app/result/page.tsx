@@ -14,116 +14,147 @@ const emptyScores = Object.fromEntries(
 ) as QuizResult["profileScores"];
 
 export default function ResultPage() {
-
   const [result, setResult] = useState<QuizResult | null>(null);
-  const [analysis, setAnalysis] = useState("Analyse personnalisée en cours...");
+  const [analysis, setAnalysis] = useState(
+    "Analyse personnalisée en cours..."
+  );
   const [leadState, setLeadState] = useState<LeadState>("idle");
+  const [leadError, setLeadError] = useState("");
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("personality_result");
 
-    const raw = localStorage.getItem("personality_result");
+      if (!raw) return;
 
-    if (!raw) return;
+      const parsed = JSON.parse(raw) as QuizResult;
+      setResult(parsed);
 
-    const parsed = JSON.parse(raw) as QuizResult;
-    setResult(parsed);
-
-    fetch("/api/analyse", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        answers: parsed.answers,
-        profile: parsed.dominantProfile,
-        score: parsed.score
+      void fetch("/api/analyse", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: parsed.answers,
+          profile: parsed.dominantProfile,
+          score: parsed.score,
+        }),
       })
-    })
-      .then((res) => res.json())
-      .then((data: { analysis?: string }) => {
-        setAnalysis(
-          data.analysis ||
-          "Votre profil révèle une personnalité nuancée avec des forces qui peuvent s'exprimer dans différents contextes."
-        );
-      })
-      .catch(() => {
-        setAnalysis(
-          "Votre analyse personnalisée sera disponible dans quelques instants."
-        );
-      });
-
+        .then(async (res) => {
+          const data = (await res.json()) as { analysis?: string };
+          setAnalysis(
+            data.analysis ||
+              "Votre profil révèle une personnalité nuancée avec des forces qui peuvent s'exprimer dans différents contextes."
+          );
+        })
+        .catch(() => {
+          setAnalysis(
+            "Votre analyse personnalisée sera disponible dans quelques instants."
+          );
+        });
+    } catch (error) {
+      console.error("Erreur lecture résultat :", error);
+    }
   }, []);
 
   const submitLead = async (event: FormEvent<HTMLFormElement>) => {
-
     event.preventDefault();
 
-    if (!result) return;
+    if (!result) {
+      setLeadState("error");
+      setLeadError("Résultat introuvable. Merci de refaire le test.");
+      return;
+    }
 
-    setLeadState("loading");
+    try {
+      setLeadState("loading");
+      setLeadError("");
 
-    const formData = new FormData(event.currentTarget);
+      const form = event.currentTarget;
+      const formData = new FormData(form);
 
-    const payload = {
-      firstName: String(formData.get("firstName") || ""),
-      email: String(formData.get("email") || ""),
-      birthDay: String(formData.get("birthDay") || ""),
-      birthMonth: String(formData.get("birthMonth") || ""),
-      birthYear: String(formData.get("birthYear") || ""),
-      birthHour: String(formData.get("birthHour") || ""),
-      birthMinute: String(formData.get("birthMinute") || ""),
-      birthCity: String(formData.get("birthCity") || ""),
-      score: result.score,
-      profile: result.dominantProfile
-    };
+      const payload = {
+        firstName: String(formData.get("firstName") || "").trim(),
+        email: String(formData.get("email") || "").trim(),
+        birthDay: String(formData.get("birthDay") || "").trim(),
+        birthMonth: String(formData.get("birthMonth") || "").trim(),
+        birthYear: String(formData.get("birthYear") || "").trim(),
+        birthHour: String(formData.get("birthHour") || "").trim(),
+        birthMinute: String(formData.get("birthMinute") || "").trim(),
+        birthCity: String(formData.get("birthCity") || "").trim(),
+        score: result.score,
+        profile: result.dominantProfile,
+      };
 
-    const response = await fetch("/api/lead-personality", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+      if (
+        !payload.firstName ||
+        !payload.email ||
+        !payload.birthDay ||
+        !payload.birthMonth ||
+        !payload.birthYear ||
+        !payload.birthCity
+      ) {
+        setLeadState("error");
+        setLeadError("Merci de remplir tous les champs obligatoires.");
+        return;
+      }
 
-    setLeadState(response.ok ? "success" : "error");
+      const response = await fetch("/api/lead-personality", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setLeadState("error");
+        setLeadError(
+          data?.error ||
+            "Une difficulté temporaire empêche l’envoi. Merci de réessayer."
+        );
+        return;
+      }
+
+      setLeadState("success");
+      form.reset();
+    } catch (error) {
+      console.error("Erreur envoi formulaire Personality :", error);
+      setLeadState("error");
+      setLeadError(
+        "Une difficulté temporaire empêche l’envoi. Merci de réessayer."
+      );
+    }
   };
-
-  /* ================================
-     PAGE DE REMERCIEMENT (LoveScan)
-  ================================= */
 
   if (leadState === "success") {
     return (
-
       <main className="flex min-h-screen items-center justify-center px-6 text-center">
-
         <div className="glass-card max-w-xl p-10">
-
-          <h2 className="text-3xl font-semibold text-white mb-4">
+          <h2 className="mb-4 text-3xl font-semibold text-white">
             ✓ Demande envoyée
           </h2>
 
-          <p className="text-white/80 leading-relaxed">
+          <p className="leading-relaxed text-white/80">
             Votre première lecture personnalisée vous sera envoyée
             par email dans quelques instants.
           </p>
 
-          <p className="text-white/60 text-sm mt-4">
+          <p className="mt-4 text-sm text-white/60">
             Pensez à vérifier vos spams si vous ne voyez rien apparaître.
           </p>
 
           <Link
             href="/"
-            className="inline-block mt-8 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-black font-semibold"
+            className="mt-8 inline-block rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 font-semibold text-black"
           >
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
-
         </div>
-
       </main>
-
     );
   }
 
@@ -141,46 +172,31 @@ export default function ResultPage() {
   }
 
   return (
-
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-10">
-
-      {/* RESULTAT + RADAR */}
-
       <div className="grid gap-6 md:grid-cols-2">
-
         <section className="glass-card p-6">
-
           <ResultCard
             profile={result.dominantProfile}
             score={result.score}
           />
 
-          {/* Phrase sous le score */}
-
-          <p className="mt-4 text-sm text-white/70 leading-relaxed">
+          <p className="mt-4 text-sm leading-relaxed text-white/70">
             Ce score reflète certaines tendances dans votre manière
             d’analyser les situations, de prendre des décisions
             et d’interagir avec votre environnement.
           </p>
-
         </section>
 
-        <section className="glass-card p-6 flex flex-col items-center">
-
-          <h3 className="text-lg font-semibold mb-4">
+        <section className="glass-card flex flex-col items-center p-6">
+          <h3 className="mb-4 text-lg font-semibold">
             Profil psychologique
           </h3>
 
           <ProfileRadar scores={result.profileScores || emptyScores} />
-
         </section>
-
       </div>
 
-      {/* ANALYSE */}
-
       <section className="glass-card p-6">
-
         <h3 className="text-lg font-semibold">
           Analyse personnalisée
         </h3>
@@ -188,42 +204,39 @@ export default function ResultPage() {
         <p className="mt-4 leading-relaxed text-white/85">
           {analysis}
         </p>
-
       </section>
 
-      {/* BLOC ASTRAE */}
-
       <section className="glass-card p-8 text-center">
-
         <h3 className="text-2xl font-semibold">
           Comprendre réellement votre fonctionnement personnel
         </h3>
 
-        <p className="mt-4 text-white/80 max-w-xl mx-auto">
+        <p className="mx-auto mt-4 max-w-xl text-white/80">
           Certaines dynamiques personnelles peuvent être liées à des facteurs
           plus profonds que les seules situations du quotidien.
         </p>
 
-        <p className="mt-3 text-white/80 max-w-xl mx-auto">
+        <p className="mx-auto mt-3 max-w-xl text-white/80">
           Au Cabinet Astrae, l’étude du thème astral est utilisée comme outil
           d’introspection pour mieux comprendre les dynamiques personnelles
           qui influencent vos choix et vos orientations de vie.
         </p>
 
         <p className="mt-6 font-medium">
-          🎁 Recevez <span className="font-bold text-cyan-400">gratuitement</span> votre première lecture personnalisée
+          🎁 Recevez{" "}
+          <span className="font-bold text-cyan-400">gratuitement</span>{" "}
+          votre première lecture personnalisée
         </p>
 
         <form
           onSubmit={submitLead}
-          className="mt-6 grid gap-4 md:grid-cols-2 max-w-xl mx-auto"
+          className="mx-auto mt-6 grid max-w-xl gap-4 md:grid-cols-2"
         >
-
           <input
             required
             name="firstName"
             placeholder="Votre prénom"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
+            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none"
           />
 
           <input
@@ -231,49 +244,69 @@ export default function ResultPage() {
             type="email"
             name="email"
             placeholder="Votre email"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3"
+            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none"
           />
 
           <div className="md:col-span-2 grid grid-cols-3 gap-2">
-
-            <input required name="birthDay" placeholder="Jour" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-            <input required name="birthMonth" placeholder="Mois" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-            <input required name="birthYear" placeholder="Année" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-
+            <input
+              required
+              name="birthDay"
+              placeholder="Jour"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
+            />
+            <input
+              required
+              name="birthMonth"
+              placeholder="Mois"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
+            />
+            <input
+              required
+              name="birthYear"
+              placeholder="Année"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
+            />
           </div>
 
           <div className="md:col-span-2 grid grid-cols-2 gap-2">
-
-            <input name="birthHour" placeholder="Heure" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-            <input name="birthMinute" placeholder="Minute" className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center" />
-
+            <input
+              name="birthHour"
+              placeholder="Heure"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
+            />
+            <input
+              name="birthMinute"
+              placeholder="Minute"
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
+            />
           </div>
 
           <input
             required
             name="birthCity"
             placeholder="Ville de naissance"
-            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 md:col-span-2"
+            className="rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-white/50 outline-none md:col-span-2"
           />
 
           <button
             type="submit"
             disabled={leadState === "loading"}
-            className="md:col-span-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 font-semibold text-black hover:opacity-90"
+            className="md:col-span-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-6 py-3 font-semibold text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Recevoir ma première analyse
+            {leadState === "loading"
+              ? "Envoi en cours..."
+              : "Recevoir ma première analyse"}
           </button>
 
+          {leadState === "error" && (
+            <p className="md:col-span-2 text-sm text-red-300">
+              {leadError}
+            </p>
+          )}
         </form>
-
       </section>
 
-      {/* PARTAGE */}
-
       <ShareButtons profile={result.dominantProfile} />
-
     </main>
-
   );
-
 }
