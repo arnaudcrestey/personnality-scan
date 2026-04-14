@@ -93,6 +93,8 @@ export default function ResultPage() {
         !payload.birthDay ||
         !payload.birthMonth ||
         !payload.birthYear ||
+        !payload.birthHour ||
+        !payload.birthMinute ||
         !payload.birthCity
       ) {
         setLeadState("error");
@@ -252,31 +254,38 @@ export default function ResultPage() {
               required
               name="birthDay"
               placeholder="Jour"
+              inputMode="numeric"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
             />
             <input
               required
               name="birthMonth"
               placeholder="Mois"
+              inputMode="numeric"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
             />
             <input
               required
               name="birthYear"
               placeholder="Année"
+              inputMode="numeric"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
             />
           </div>
 
           <div className="md:col-span-2 grid grid-cols-2 gap-2">
             <input
+              required
               name="birthHour"
               placeholder="Heure"
+              inputMode="numeric"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
             />
             <input
+              required
               name="birthMinute"
               placeholder="Minute"
+              inputMode="numeric"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
             />
           </div>
