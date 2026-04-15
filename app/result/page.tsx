@@ -290,6 +290,11 @@ export default function ResultPage() {
             />
           </div>
 
+          <p className="mt-2 text-[13px] leading-6 text-white/60 md:col-span-2">
+            Si vous ne connaissez pas votre heure exacte, une estimation permet
+            déjà une première lecture.
+          </p>
+
           <input
             required
             name="birthCity"
