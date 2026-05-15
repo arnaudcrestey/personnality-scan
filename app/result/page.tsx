@@ -288,12 +288,10 @@ export default function ResultPage() {
               inputMode="numeric"
               className="rounded-lg border border-white/20 bg-white/10 px-3 py-3 text-center text-white placeholder:text-white/50 outline-none"
             />
-          </div>
-
-          <p className="mt-2 text-[13px] leading-6 text-white/60 md:col-span-2">
-            Si vous ne connaissez pas votre heure exacte, une estimation permet
-            déjà une première lecture.
-          </p>
+          <p className="mt-2 text-[13px] leading-6 text-white/60 md:col-span-2 md:whitespace-nowrap">
+  Si vous ne connaissez pas votre heure exacte, une estimation permet
+  déjà une première lecture.
+</p>
 
           <input
             required
