@@ -290,8 +290,10 @@ export default function ResultPage() {
             />
             
             </div>
-          <p className="mx-auto mt-2 max-w-[720px] text-center text-[13px] leading-6 text-white/60 md:col-span-2">
-  Si vous ne connaissez pas votre heure exacte, une estimation permet déjà une première lecture.
+<p className="mt-1 text-center text-[13px] leading-6 text-white/60 md:col-span-2">
+  Si vous ne connaissez pas votre heure exacte,
+  <br />
+  une estimation permet déjà une première lecture.
 </p>
 
           <input
